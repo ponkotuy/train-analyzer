@@ -1,4 +1,9 @@
 
+DROP TABLE IF EXISTS time_table;
+DROP TABLE IF EXISTS train;
+DROP TABLE IF EXISTS pattern;
+DROP TABLE IF EXISTS station;
+DROP TABLE IF EXISTS line;
 
 CREATE TABLE line(
         id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -9,8 +14,10 @@ CREATE TABLE line(
 CREATE TABLE station(
         id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
+        `no` INT NOT NULL,
         line_id BIGINT NOT NULL,
-        FOREIGN KEY (line_id) REFERENCES line(id)
+        FOREIGN KEY (line_id) REFERENCES line(id),
+        UNIQUE INDEX unique_line_no(line_id, `no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE pattern(
@@ -28,13 +35,13 @@ CREATE TABLE train(
         FOREIGN KEY (pattern_id) REFERENCES pattern(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `time_table`(
+CREATE TABLE time_table(
         id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         train_id BIGINT NOT NULL,
         station_id BIGINT NOT NULL,
         minutes INT NOT NULL,
-        is_arrive BOOLEAN NOT NULL
-        UNIQUE INDEX train_station_arrive(train_id, station_id, is_arrive),
+        is_arrive BOOLEAN NOT NULL,
+        UNIQUE INDEX unique_train_station_arrive(train_id, station_id, is_arrive),
         FOREIGN KEY (train_id) REFERENCES train(id),
         FOREIGN KEY (station_id) REFERENCES station(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

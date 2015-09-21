@@ -2,13 +2,17 @@ package controllers
 
 import play.api.mvc._
 import requests.LineCreate
+import scalikejdbc.DB
 
 object Lines extends Controller {
-  def save() = Action {
+  def save() = Action { implicit req =>
     LineCreate.form.bindFromRequest().fold(Results.validationError, saveLine)
   }
 
-  def saveLine(create: LineCreate): Result = {
-
+  private def saveLine(create: LineCreate): Result = {
+    DB localTx { implicit session =>
+      create.save()
+      Results.success
+    }
   }
 }

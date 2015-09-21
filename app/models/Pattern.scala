@@ -16,7 +16,7 @@ object Pattern extends SkinnyCRUDMapperWithId[Long, Pattern] {
 }
 
 case class PatternBuilder(lineId: Long, name: String) {
-  def save()(implicit session: DBSession): Unit = {
+  def save()(implicit session: DBSession): Long = {
     Pattern.createWithAttributes(
       'lineId -> lineId,
       'name -> name

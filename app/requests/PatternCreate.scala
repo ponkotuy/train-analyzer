@@ -7,7 +7,9 @@ import scalikejdbc.DBSession
 case class PatternCreate(name: String, trains: Seq[TrainCreate]) {
   private def build(lineId: Long): PatternBuilder = PatternBuilder(lineId, name)
   def save(lineId: Long)(implicit session: DBSession): Long = {
-    build(lineId).save()
+    val patternId = build(lineId).save()
+    trains.foreach(_.save(patternId))
+    patternId
   }
 }
 

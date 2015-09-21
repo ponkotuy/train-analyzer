@@ -1,20 +1,27 @@
 package requests
 
-import models.TimeTableBuilder
+import models._
 import play.api.data.Forms._
+import scalikejdbc.DBSession
 
-case class TimeTableCreate(minutes: Int, isArrive: Boolean) {
+case class TimeTableCreate(minutes: Int, isArrive: Boolean, stationNo: Int) {
   private def build(trainId: Long, stationId: Long): TimeTableBuilder =
     TimeTableBuilder(trainId: Long, stationId: Long, minutes, isArrive)
 
-  private def save(trainId: Long, stationId: Long): Long = {
-    build(trainId, stationId).save()
+  def save(trainId: Long)(implicit session: DBSession): Option[Long] = {
+    for {
+      train <- Train.findById(trainId)
+      pattern <- Pattern.findById(train.patternId)
+      line <- Line.findById(pattern.lineId)
+      station <- Station.findByNo(line.id, stationNo)
+    } yield build(trainId, station.id).save()
   }
 }
 
 object TimeTableCreate {
   val mapper = mapping(
     "minutes" -> number(min = 0),
-    "isArrive" -> boolean
+    "isArrive" -> boolean,
+    "stationNo" -> number
   )(TimeTableCreate.apply)(TimeTableCreate.unapply)
 }

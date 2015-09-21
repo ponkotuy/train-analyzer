@@ -9,4 +9,6 @@ object Results {
     val message = form.errors.map(_.message).mkString("\n")
     BadRequest(message)
   }
+
+  val success = Ok("Success")
 }

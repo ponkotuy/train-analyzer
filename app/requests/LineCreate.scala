@@ -9,7 +9,9 @@ case class LineCreate(name: String, timeTablePeriod: Int, stations: Seq[StationC
   private def build: LineBuilder = LineBuilder(name, timeTablePeriod)
 
   def save()(implicit session: DBSession): Unit = {
-    build.save()
+    val lineId = build.save()
+    stations.foreach(_.save(lineId))
+    patterns.foreach(_.save(lineId))
   }
 }
 

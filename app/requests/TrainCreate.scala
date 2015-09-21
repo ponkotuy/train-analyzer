@@ -8,7 +8,9 @@ case class TrainCreate(trainClass: String, name: String, timeTable: Seq[TimeTabl
   private def build(patternId: Long): TrainBuilder = TrainBuilder(patternId, trainClass, name)
 
   def save(patternId: Long)(implicit session: DBSession): Long = {
-    build(patternId).save()
+    val trainId = build(patternId).save()
+    timeTable.foreach(_.save(trainId))
+    trainId
   }
 }
 
