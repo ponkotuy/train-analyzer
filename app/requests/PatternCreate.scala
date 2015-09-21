@@ -1,6 +1,7 @@
 package requests
 
 import models.PatternBuilder
+import play.api.data.Form
 import play.api.data.Forms._
 import scalikejdbc.DBSession
 
@@ -18,4 +19,6 @@ object PatternCreate {
     "name" -> text(maxLength = 255),
     "trains" -> seq(TrainCreate.mapper)
   )(PatternCreate.apply)(PatternCreate.unapply)
+
+  val form = Form(mapper)
 }

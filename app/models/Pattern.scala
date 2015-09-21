@@ -8,6 +8,8 @@ case class Pattern(id: Long, lineId: Long, name: String)
 object Pattern extends SkinnyCRUDMapperWithId[Long, Pattern] {
   override def defaultAlias: Alias[Pattern] = createAlias("p")
 
+  val p = defaultAlias
+
   override def extract(rs: WrappedResultSet, n: ResultName[Pattern]): Pattern = autoConstruct(rs, n)
 
   override def idToRawValue(id: Long): Any = id

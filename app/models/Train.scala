@@ -8,6 +8,8 @@ case class Train(id: Long, patternId: Long, trainClass: String, name: String)
 object Train extends SkinnyCRUDMapperWithId[Long, Train] {
   override def defaultAlias: Alias[Train] = createAlias("t")
 
+  val t = defaultAlias
+
   override def extract(rs: WrappedResultSet, n: ResultName[Train]): Train = autoConstruct(rs, n)
 
   override def idToRawValue(id: Long): Any = id

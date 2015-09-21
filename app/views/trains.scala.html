@@ -1,0 +1,70 @@
+@(pattern: Pattern, line: Line, stations: Seq[Station], trains: Seq[Train])
+
+@main {
+  <title>@{line.name}の@{pattern.name}のtrain list</title>
+  <script src="/assets/javascript/trains.js"></script>
+} {
+  <dl class="dl-horizontal">
+    <dt>Line</dt><dd>@line.name</dd>
+    <dt>Entire Period</dt><dd>@line.timeTablePeriod 分</dd>
+    <dt>Pattern</dt><dd>@pattern.name</dd>
+  </dl>
+
+  <h1>Create</h1>
+  <form class="form-horizontal">
+    <div class="form-group">
+      <label for="trainClass" class="col-sm-2 control-label">Train class</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="trainClass">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="trainName" class="col-sm-2 control-label">Train name</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="trainName">
+      </div>
+    </div>
+
+    <h3>Time table</h3>
+    @stations.map { station =>
+      <div class="form-group">
+        <label for="station_@{station.id}_arrive" class="col-sm-4 control-label">@station.name 着</label>
+        <div class="col-sm-2">
+          <input type="number" class="form-control arrive-time" id="station_@{station.id}_arrive" data-station-id="@station.id">
+        </div>
+        <label for="station_@{station.id}_depart" class="col-sm-1 control-label">発</label>
+        <div class="col-sm-2">
+          <input type="number" class="form-control depart-time" id="station_@{station.id}_depart" data-station-id="@station.id">
+        </div>
+      </div>
+    }
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="button" class="btn btn-primary" id="createTrain" data-line-id="@line.id">Create</button>
+      </div>
+    </div>
+  </form>
+
+  <h1>List</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    @trains.map { train =>
+      <tr>
+        <td>@train.id</td>
+        <td>@train.name</td>
+        <td>
+        </td>
+      </tr>
+    }
+    </tbody>
+  </table>
+}

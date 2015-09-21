@@ -1,7 +1,12 @@
 
-GET  /     controllers.Application.index
+# View
+GET         /                                      controllers.Views.index
+GET         /view/line/:lineId/patterns            controllers.Views.patterns(lineId: Long)
+GET         /view/pattern/:patternId/trains        controllers.Views.trains(patternId: Long)
 
-POST /line controllers.Lines.save()
+# API
+POST        /line                                  controllers.Lines.save()
+POST        /line/:lineId/pattern                  controllers.Lines.savePattern(lineId: Long)
 
 # Map static resources from the /public folder to the /assets URL path
-GET  /assets/*file controllers.Assets.at(path="/public", file)
+GET         /assets/*file                          controllers.Assets.at(path="/public", file)
