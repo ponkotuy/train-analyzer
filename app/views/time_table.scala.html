@@ -1,0 +1,12 @@
+@(train: Train, pattern: Pattern, line: Line, timeTable: Seq[TimeTable], stations: Map[Long, Station])
+
+@main {
+  <title>@line.name @train.trainClass @train.name のダイヤ</title>
+} {
+  <h1>TimeTable</h1>
+  <dl class="dl-horizontal">
+    @timeTable.map { tt =>
+      <dt>@{stations(tt.stationId).name} @{if(tt.isArrive) "着" else "発"}</dt><dd>@tt.minutes 分</dd>
+    }
+  </dl>
+ }

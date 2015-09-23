@@ -2,11 +2,11 @@ package requests
 
 import models.StationBuilder
 import play.api.data.Forms._
-import scalikejdbc.DBSession
+import scalikejdbc.{AutoSession, DBSession}
 
 case class StationCreate(name: String, no: Int) {
   private def build(lineId: Long): StationBuilder = StationBuilder(name, no, lineId)
-  def save(lineId: Long)(implicit session: DBSession): Long = {
+  def save(lineId: Long)(implicit session: DBSession = AutoSession): Long = {
     build(lineId).save()
   }
 }

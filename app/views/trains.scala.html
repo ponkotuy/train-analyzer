@@ -12,6 +12,7 @@
 
   <h1>Create</h1>
   <form class="form-horizontal">
+    <input type="hidden" id="patternId" value="@pattern.id">
     <div class="form-group">
       <label for="trainClass" class="col-sm-2 control-label">Train class</label>
       <div class="col-sm-10">
@@ -31,18 +32,18 @@
       <div class="form-group">
         <label for="station_@{station.id}_arrive" class="col-sm-4 control-label">@station.name 着</label>
         <div class="col-sm-2">
-          <input type="number" class="form-control arrive-time" id="station_@{station.id}_arrive" data-station-id="@station.id">
+          <input type="number" class="form-control arrive-time" id="station_@{station.id}_arrive" data-station-id="@station.id" data-station-no="@station.no">
         </div>
         <label for="station_@{station.id}_depart" class="col-sm-1 control-label">発</label>
         <div class="col-sm-2">
-          <input type="number" class="form-control depart-time" id="station_@{station.id}_depart" data-station-id="@station.id">
+          <input type="number" class="form-control depart-time" id="station_@{station.id}_depart" data-station-id="@station.id" data-station-no="@station.no">
         </div>
       </div>
     }
 
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <button type="button" class="btn btn-primary" id="createTrain" data-line-id="@line.id">Create</button>
+        <button type="button" class="btn btn-primary" id="createTrain" data-pattern-id="@pattern.id">Create</button>
       </div>
     </div>
   </form>
@@ -52,6 +53,7 @@
     <thead>
       <tr>
         <th>ID</th>
+        <th>Class</th>
         <th>Name</th>
         <th></th>
       </tr>
@@ -60,8 +62,11 @@
     @trains.map { train =>
       <tr>
         <td>@train.id</td>
+        <td>@train.trainClass</td>
         <td>@train.name</td>
         <td>
+          <a href="/view/train/@train.id/time_table">TimeTable</a>
+          <button type="button" class="btn btn-danger btn-xs delete-train" data-train-id="@train.id">DELETE</button>
         </td>
       </tr>
     }

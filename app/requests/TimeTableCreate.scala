@@ -2,13 +2,13 @@ package requests
 
 import models._
 import play.api.data.Forms._
-import scalikejdbc.DBSession
+import scalikejdbc.{AutoSession, DBSession}
 
 case class TimeTableCreate(minutes: Int, isArrive: Boolean, stationNo: Int) {
   private def build(trainId: Long, stationId: Long): TimeTableBuilder =
     TimeTableBuilder(trainId: Long, stationId: Long, minutes, isArrive)
 
-  def save(trainId: Long)(implicit session: DBSession): Option[Long] = {
+  def save(trainId: Long)(implicit session: DBSession = AutoSession): Option[Long] = {
     for {
       train <- Train.findById(trainId)
       pattern <- Pattern.findById(train.patternId)

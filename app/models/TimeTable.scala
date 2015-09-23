@@ -8,6 +8,8 @@ case class TimeTable(id: Long, trainId: Long, stationId: Long, minutes: Int, isA
 object TimeTable extends SkinnyCRUDMapperWithId[Long, TimeTable] {
   override def defaultAlias: Alias[TimeTable] = createAlias("tt")
 
+  val tt = defaultAlias
+
   override def extract(rs: WrappedResultSet, n: ResultName[TimeTable]): TimeTable = autoConstruct(rs, n)
 
   override def idToRawValue(id: Long): Any = id
@@ -16,7 +18,7 @@ object TimeTable extends SkinnyCRUDMapperWithId[Long, TimeTable] {
 }
 
 case class TimeTableBuilder(trainId: Long, stationId: Long, minutes: Int, isArrive: Boolean) {
-  def save()(implicit session: DBSession): Long = {
+  def save()(implicit session: DBSession = AutoSession): Long = {
     TimeTable.createWithAttributes(
       'trainId -> trainId,
       'stationId -> stationId,

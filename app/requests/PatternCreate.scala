@@ -3,11 +3,11 @@ package requests
 import models.PatternBuilder
 import play.api.data.Form
 import play.api.data.Forms._
-import scalikejdbc.DBSession
+import scalikejdbc.{AutoSession, DBSession}
 
 case class PatternCreate(name: String, trains: Seq[TrainCreate]) {
   private def build(lineId: Long): PatternBuilder = PatternBuilder(lineId, name)
-  def save(lineId: Long)(implicit session: DBSession): Long = {
+  def save(lineId: Long)(implicit session: DBSession = AutoSession): Long = {
     val patternId = build(lineId).save()
     trains.foreach(_.save(patternId))
     patternId

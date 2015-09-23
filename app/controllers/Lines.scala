@@ -1,8 +1,8 @@
 package controllers
 
+import models.Train
 import play.api.mvc._
-import requests.{PatternCreate, LineCreate}
-import scalikejdbc.DB
+import requests.{LineCreate, PatternCreate, TrainCreate}
 
 object Lines extends Controller {
   def save() = Action { implicit req =>
@@ -10,10 +10,8 @@ object Lines extends Controller {
   }
 
   private def saveLine(create: LineCreate): Result = {
-    DB localTx { implicit session =>
-      create.save()
-      Results.success
-    }
+    create.save()
+    Results.success
   }
 
   def savePattern(lineId: Long) = Action { implicit seq =>
@@ -21,9 +19,20 @@ object Lines extends Controller {
   }
 
   private def createPattern(lineId: Long)(create: PatternCreate): Result = {
-    DB localTx { implicit session =>
-      create.save(lineId)
-      Results.success
-    }
+    create.save(lineId)
+    Results.success
+  }
+
+  def saveTrain(patternId: Long) = Action { implicit seq =>
+    TrainCreate.form.bindFromRequest().fold(Results.validationError, createTrain(patternId))
+  }
+
+  private def createTrain(patternId: Long)(create: TrainCreate): Result = {
+    create.save(patternId)
+    Results.success
+  }
+
+  def deleteTrain(trainId: Long) = Action {
+    if(Train.deleteWithTable(trainId)) Results.success else NotFound("Not found train")
   }
 }

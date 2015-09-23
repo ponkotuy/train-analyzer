@@ -16,7 +16,7 @@ object Line extends SkinnyCRUDMapperWithId[Long, Line] {
 }
 
 case class LineBuilder(name: String, timeTablePeriod: Int) {
-  def save()(implicit session: DBSession): Long = {
+  def save()(implicit session: DBSession = AutoSession): Long = {
     Line.createWithAttributes(
       'name -> name,
       'timeTablePeriod -> timeTablePeriod

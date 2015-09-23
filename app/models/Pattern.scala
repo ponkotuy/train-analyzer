@@ -3,7 +3,9 @@ package models
 import scalikejdbc._
 import skinny.orm.{Alias, SkinnyCRUDMapperWithId}
 
-case class Pattern(id: Long, lineId: Long, name: String)
+case class Pattern(id: Long, lineId: Long, name: String) {
+  def line()(implicit session: DBSession = AutoSession): Option[Line] = Line.findById(lineId)
+}
 
 object Pattern extends SkinnyCRUDMapperWithId[Long, Pattern] {
   override def defaultAlias: Alias[Pattern] = createAlias("p")
@@ -18,7 +20,7 @@ object Pattern extends SkinnyCRUDMapperWithId[Long, Pattern] {
 }
 
 case class PatternBuilder(lineId: Long, name: String) {
-  def save()(implicit session: DBSession): Long = {
+  def save()(implicit session: DBSession = AutoSession): Long = {
     Pattern.createWithAttributes(
       'lineId -> lineId,
       'name -> name
