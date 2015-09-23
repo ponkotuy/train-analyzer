@@ -3,7 +3,11 @@ package models
 import scalikejdbc._
 import skinny.orm.{Alias, SkinnyCRUDMapperWithId}
 
-case class Line(id: Long, name: String, timeTablePeriod: Int)
+case class Line(id: Long, name: String, timeTablePeriod: Int) {
+  def stations()(implicit session: DBSession = AutoSession): Seq[Station] = {
+    Station.findAllBy(sqls.eq(Station.st.lineId, id))
+  }
+}
 
 object Line extends SkinnyCRUDMapperWithId[Long, Line] {
   override def defaultAlias: Alias[Line] = createAlias("l")

@@ -5,6 +5,7 @@ import skinny.orm.{Alias, SkinnyCRUDMapperWithId}
 
 case class Pattern(id: Long, lineId: Long, name: String) {
   def line()(implicit session: DBSession = AutoSession): Option[Line] = Line.findById(lineId)
+  def trains()(implicit session: DBSession = AutoSession): Seq[Train] = Train.findAllBy(sqls.eq(Train.t.patternId, id))
 }
 
 object Pattern extends SkinnyCRUDMapperWithId[Long, Pattern] {

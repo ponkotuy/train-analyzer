@@ -1,7 +1,7 @@
-@(pattern: Pattern, line: Line, stations: Seq[Station], trains: Seq[Train])
+@(pattern: Pattern, line: Line, stations: Seq[Station], trains: Seq[Train], timeTable: Seq[TimeTable], fastest: Map[Long, Int])
 
 @main {
-  <title>@{line.name}の@{pattern.name}のtrain list</title>
+  <title>@{line.name} @{pattern.name}</title>
   <script src="/assets/javascript/trains.js"></script>
 } {
   <dl class="dl-horizontal">
@@ -10,66 +10,117 @@
     <dt>Pattern</dt><dd>@pattern.name</dd>
   </dl>
 
-  <h1>Create</h1>
-  <form class="form-horizontal">
-    <input type="hidden" id="patternId" value="@pattern.id">
-    <div class="form-group">
-      <label for="trainClass" class="col-sm-2 control-label">Train class</label>
-      <div class="col-sm-10">
-        <input type="text" class="form-control" id="trainClass">
-      </div>
-    </div>
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active">
+      <a href="#create" aria-controls="create" role="tab" data-toggle="tab">Create</a>
+    </li>
+    <li role="presentation">
+      <a href="#trains" aria-controls="trains" role="tab" data-toggle="tab">Trains</a>
+    </li>
+    <li role="presentation">
+      <a href="#stops" aria-controls="stops" role="tab" data-toggle="tab">Stops</a>
+    </li>
+  </ul>
 
-    <div class="form-group">
-      <label for="trainName" class="col-sm-2 control-label">Train name</label>
-      <div class="col-sm-10">
-        <input type="text" class="form-control" id="trainName">
-      </div>
-    </div>
-
-    <h3>Time table</h3>
-    @stations.map { station =>
-      <div class="form-group">
-        <label for="station_@{station.id}_arrive" class="col-sm-4 control-label">@station.name 着</label>
-        <div class="col-sm-2">
-          <input type="number" class="form-control arrive-time" id="station_@{station.id}_arrive" data-station-id="@station.id" data-station-no="@station.no">
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="create">
+      <h1>Create</h1>
+      <form class="form-horizontal">
+        <input type="hidden" id="patternId" value="@pattern.id">
+        <div class="form-group">
+          <label for="trainClass" class="col-sm-2 control-label">Train class</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="trainClass">
+          </div>
         </div>
-        <label for="station_@{station.id}_depart" class="col-sm-1 control-label">発</label>
-        <div class="col-sm-2">
-          <input type="number" class="form-control depart-time" id="station_@{station.id}_depart" data-station-id="@station.id" data-station-no="@station.no">
+
+        <div class="form-group">
+          <label for="trainName" class="col-sm-2 control-label">Train name</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="trainName">
+          </div>
         </div>
-      </div>
-    }
 
-    <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
-        <button type="button" class="btn btn-primary" id="createTrain" data-pattern-id="@pattern.id">Create</button>
-      </div>
+        <h3>Time table</h3>
+        @stations.map { station =>
+          <div class="form-group">
+            <label for="station_@{station.id}_arrive" class="col-sm-4 control-label">@station.name 着</label>
+            <div class="col-sm-2">
+              <input type="number" class="form-control arrive-time" id="station_@{station.id}_arrive" data-station-id="@station.id" data-station-no="@station.no">
+            </div>
+            <label for="station_@{station.id}_depart" class="col-sm-1 control-label">発</label>
+            <div class="col-sm-2">
+              <input type="number" class="form-control depart-time" id="station_@{station.id}_depart" data-station-id="@station.id" data-station-no="@station.no">
+            </div>
+          </div>
+        }
+
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-primary" id="createTrain" data-pattern-id="@pattern.id">Create</button>
+          </div>
+        </div>
+      </form>
     </div>
-  </form>
 
-  <h1>List</h1>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Class</th>
-        <th>Name</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-    @trains.map { train =>
-      <tr>
-        <td>@train.id</td>
-        <td>@train.trainClass</td>
-        <td>@train.name</td>
-        <td>
-          <a href="/view/train/@train.id/time_table">TimeTable</a>
-          <button type="button" class="btn btn-danger btn-xs delete-train" data-train-id="@train.id">DELETE</button>
-        </td>
-      </tr>
-    }
-    </tbody>
-  </table>
+    <div role="tabpanel" class="tab-pane" id="trains">
+      <h1>Trains</h1>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Class</th>
+            <th>Name</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        @trains.map { train =>
+          <tr>
+            <td>@train.id</td>
+            <td>@train.trainClass</td>
+            <td>@train.name</td>
+            <td>
+              <a href="/view/train/@train.id/time_table">TimeTable</a>
+            </td>
+            <td>
+              <button type="button" class="btn btn-danger btn-xs delete-train" data-train-id="@train.id">DELETE</button>
+            </td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="stops">
+      <h1>Stops</h1>
+      <table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Time</th>
+            @trains.map { train =>
+              <th>@train.trainClass @train.name</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+        @stations.map { st =>
+          <tr>
+            <td>@st.id</td>
+            <td>@st.name</td>
+            <td>@fastest.lift(st.id).map(_ + "分").getOrElse("-")</td>
+            @trains.map { train =>
+              <td>
+                @if(timeTable.exists { tt => tt.stationId == st.id && tt.trainId == train.id}){○} else {｜}
+              </td>
+            }
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+  </div>
 }
