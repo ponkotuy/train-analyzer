@@ -7,51 +7,50 @@ import scala.collection.mutable
 import scala.collection.breakOut
 
 case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], trains: Seq[Train], table: Seq[TimeTable]) {
-  val trainTable = table.filterNot(_.isArrive).groupBy(_.trainId).mapValues(_.sortBy(_.minutes))
+  val paths: Map[Long, List[TrainPath]] = table.groupBy(_.trainId).mapValues { case xs =>
+    def f(xs: List[TimeTable]): List[TrainPath] = {
+      xs match {
+        case x :: y :: rest =>
+          if(y.isArrive) TrainPath(x, y) :: f(rest)
+          else TrainPath(x, y.copy(isArrive = true)) :: f(y :: rest)
+        case _ => Nil
+      }
+    }
+    f(xs.sortBy { x => (x.minutes, !x.isArrive) }.toList)
+  }
+  println(paths.map(_._2.map(_.start.stationId)))
+
   def calc: Seq[TrainPath] = {
     stations.headOption.map { start =>
       val result = mutable.Map[Long, TrainPath]()
       val temp = mutable.Buffer[TrainPath]()
-      temp ++= nextPaths(start.id)
+      temp ++= paths.flatMap { case (_, xs) =>
+        xs.filter(_.start.stationId == start.id)
+      }
       while(temp.nonEmpty) {
+        println(temp.map(_.period))
         val min = temp.minBy(_.period)
         temp -= min
         result(min.end.stationId) = min
-        temp ++= nextPaths(min.end.stationId).map(min.join)
+        temp ++= nextPaths(min.end).map(min.join)
         temp.filter { p => result.contains(p.end.stationId) }.foreach(temp -= _)
-        println(temp.map(_.period))
       }
       result.values.toVector
     }.getOrElse(Nil)
   }
 
-  def stopTable(stationId: Long) = table.filter { t => t.stationId == stationId && !t.isArrive }
-  def nextPaths(stationId: Long) = stopTable(stationId).flatMap { table =>
-    trainTable(table.trainId).dropWhile(_.stationId != table.stationId).lift(1).map { end =>
-      TrainPath(table, end)
-    }
-  }
+  def nextPaths(now: TimeTable): Seq[TrainPath] = paths.flatMap { case (tId, xs) =>
+    xs.find(_.start.stationId == now.stationId)
+  }(breakOut)
 }
 
 object FastestPath {
-  def fixTable(line: Line, pattern: Pattern, stations: Seq[Station], trains: Seq[Train], table: Seq[TimeTable]): FastestPath = {
-    val newTable: Seq[TimeTable] = table.groupBy { t => (t.stationId, t.trainId) }.flatMap { case (_, xs) =>
-      val arrive = xs.find(_.isArrive).getOrElse(copyArriveDepart(xs.head))
-      val depart = xs.find(!_.isArrive).getOrElse(copyArriveDepart(xs.head))
-      arrive :: depart :: Nil
-    }(breakOut)
-    println(table)
-    new FastestPath(line, pattern, stations, trains, newTable)
-  }
-
-  private def copyArriveDepart(elem: TimeTable) = TimeTable(-1L, elem.trainId, elem.stationId, elem.minutes, !elem.isArrive)
-
   def fromPattern(pattern: Pattern)(implicit session: DBSession = AutoSession): Option[FastestPath] = {
     pattern.line().map { line =>
       val stations = line.stations()
       val table = TimeTable.findAllBy(sqls.in(TimeTable.tt.stationId, stations.map(_.id)))
       val trains = pattern.trains()
-      fixTable(line, pattern, stations, trains, table)
+      apply(line, pattern, stations, trains, table)
     }
   }
 }
