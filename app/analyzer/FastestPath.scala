@@ -33,12 +33,17 @@ case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], tra
     val initPaths = paths.flatMap { case (_, xs) =>
       xs.filter(_.start.stationId == stations.head.id)
     }(breakOut)
-    println(initPaths)
     f(stations.tail, initPaths)
   }
 
   def nextPaths(now: TimeTable): Seq[TrainPath] = paths.flatMap { case (tId, xs) =>
     xs.find(_.start.stationId == now.stationId)
+  }.map { path =>
+    def f(conn: TimeTable): TimeTable = {
+      val connMinutes = ((now.minutes - conn.minutes) / line.timeTablePeriod.toDouble).ceil.toInt * line.timeTablePeriod
+      conn.next(connMinutes)
+    }
+    path.copy(end = f(path.end))
   }(breakOut)
 
   def nextPaths(path: TrainPath): Seq[TrainPath] = nextPaths(path.end).map(path.join)

@@ -3,7 +3,9 @@ package models
 import scalikejdbc._
 import skinny.orm.{Alias, SkinnyCRUDMapperWithId}
 
-case class TimeTable(id: Long, trainId: Long, stationId: Long, minutes: Int, isArrive: Boolean)
+case class TimeTable(id: Long, trainId: Long, stationId: Long, minutes: Int, isArrive: Boolean) {
+  def next(period: Int) = copy(minutes = minutes + period)
+}
 
 object TimeTable extends SkinnyCRUDMapperWithId[Long, TimeTable] {
   override def defaultAlias: Alias[TimeTable] = createAlias("tt")
