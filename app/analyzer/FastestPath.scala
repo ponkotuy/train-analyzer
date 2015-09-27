@@ -3,7 +3,6 @@ package analyzer
 import models._
 import scalikejdbc._
 
-import scala.collection.mutable
 import scala.collection.breakOut
 
 case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], trains: Seq[Train], table: Seq[TimeTable]) {
@@ -18,30 +17,31 @@ case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], tra
     }
     f(xs.sortBy { x => (x.minutes, !x.isArrive) }.toList)
   }
-  println(paths.map(_._2.map(_.start.stationId)))
 
   def calc: Seq[TrainPath] = {
-    stations.headOption.map { start =>
-      val result = mutable.Map[Long, TrainPath]()
-      val temp = mutable.Buffer[TrainPath]()
-      temp ++= paths.flatMap { case (_, xs) =>
-        xs.filter(_.start.stationId == start.id)
-      }
-      while(temp.nonEmpty) {
-        println(temp.map(_.period))
-        val min = temp.minBy(_.period)
-        temp -= min
-        result(min.end.stationId) = min
-        temp ++= nextPaths(min.end).map(min.join)
-        temp.filter { p => result.contains(p.end.stationId) }.foreach(temp -= _)
-      }
-      result.values.toVector
-    }.getOrElse(Nil)
+    if(stations.isEmpty) return Nil
+    def f(sts: Seq[Station], paths: Seq[TrainPath]): Seq[TrainPath] = sts match {
+      case st +: rest =>
+        val grouped = paths.groupBy(_.end.stationId == st.id)
+        val passed = grouped.getOrElse(false, Nil)
+        val stop = grouped.getOrElse(true, Nil)
+        val newPaths = passed ++ stop.flatMap(nextPaths)
+        if(stop.nonEmpty) stop.minBy(_.period) +: f(rest, newPaths) else f(rest, newPaths)
+      case _ => Nil
+    }
+
+    val initPaths = paths.flatMap { case (_, xs) =>
+      xs.filter(_.start.stationId == stations.head.id)
+    }(breakOut)
+    println(initPaths)
+    f(stations.tail, initPaths)
   }
 
   def nextPaths(now: TimeTable): Seq[TrainPath] = paths.flatMap { case (tId, xs) =>
     xs.find(_.start.stationId == now.stationId)
   }(breakOut)
+
+  def nextPaths(path: TrainPath): Seq[TrainPath] = nextPaths(path.end).map(path.join)
 }
 
 object FastestPath {
