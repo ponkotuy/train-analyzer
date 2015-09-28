@@ -3,7 +3,7 @@ package models
 import scalikejdbc._
 import skinny.orm.{Alias, SkinnyCRUDMapperWithId}
 
-case class Line(id: Long, name: String, timeTablePeriod: Int) {
+case class Line(id: Long, name: String) {
   def stations()(implicit session: DBSession = AutoSession): Seq[Station] = {
     Station.findAllBy(sqls.eq(Station.st.lineId, id))
   }
@@ -19,11 +19,10 @@ object Line extends SkinnyCRUDMapperWithId[Long, Line] {
   override def rawValueToId(value: Any): Long = value.toString.toLong
 }
 
-case class LineBuilder(name: String, timeTablePeriod: Int) {
+case class LineBuilder(name: String) {
   def save()(implicit session: DBSession = AutoSession): Long = {
     Line.createWithAttributes(
-      'name -> name,
-      'timeTablePeriod -> timeTablePeriod
+      'name -> name
     )
   }
 }

@@ -3,7 +3,7 @@ package models
 import scalikejdbc._
 import skinny.orm.{Alias, SkinnyCRUDMapperWithId}
 
-case class Pattern(id: Long, lineId: Long, name: String) {
+case class Pattern(id: Long, lineId: Long, name: String, timeTablePeriod: Int) {
   def line()(implicit session: DBSession = AutoSession): Option[Line] = Line.findById(lineId)
   def trains()(implicit session: DBSession = AutoSession): Seq[Train] = Train.findAllBy(sqls.eq(Train.t.patternId, id))
 }
@@ -20,11 +20,12 @@ object Pattern extends SkinnyCRUDMapperWithId[Long, Pattern] {
   override def rawValueToId(value: Any): Long = value.toString.toLong
 }
 
-case class PatternBuilder(lineId: Long, name: String) {
+case class PatternBuilder(lineId: Long, name: String, timeTablePeriod: Int) {
   def save()(implicit session: DBSession = AutoSession): Long = {
     Pattern.createWithAttributes(
       'lineId -> lineId,
-      'name -> name
+      'name -> name,
+      'timeTablePeriod -> timeTablePeriod
     )
   }
 }

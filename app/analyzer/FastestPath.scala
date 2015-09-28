@@ -7,6 +7,7 @@ import scala.collection.breakOut
 import scala.collection.mutable
 
 case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], trains: Seq[Train], table: Seq[TimeTable]) {
+  val entirePeriod = pattern.timeTablePeriod
   val paths: Map[Long, List[TrainPath]] = table.groupBy(_.trainId).mapValues { case xs =>
     def f(xs: List[TimeTable]): List[TrainPath] = {
       xs match {
@@ -35,14 +36,14 @@ case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], tra
     if(stations.isEmpty) return Map.empty
     val sums = mutable.Map[Long, Int]().withDefaultValue(0)
     val start = stations.head
-    (0 until line.timeTablePeriod).foreach { minutes =>
+    (0 until entirePeriod).foreach { minutes =>
       val init = TimeTable(0L, 0L, start.id, minutes, true)
       val result = lookup(stations.tail, nextPaths(init).map(_.copy(start = init)))
       result.foreach { path =>
         sums(path.end.stationId) += path.period
       }
     }
-    sums.mapValues(_ / line.timeTablePeriod.toDouble).toMap
+    sums.mapValues(_ / entirePeriod.toDouble).toMap
   }
 
   private def lookup(sts: Seq[Station], paths: Seq[TrainPath]): Seq[TrainPath] = sts match {
@@ -58,7 +59,7 @@ case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], tra
   def nextPaths(now: TimeTable): Seq[TrainPath] = paths.flatMap { case (tId, xs) =>
     xs.find(_.start.stationId == now.stationId)
   }.map { path =>
-    val connMinutes = ((now.minutes - path.start.minutes) / line.timeTablePeriod.toDouble).ceil.toInt * line.timeTablePeriod
+    val connMinutes = ((now.minutes - path.start.minutes) / entirePeriod.toDouble).ceil.toInt * entirePeriod
     val connPath = path.end.next(connMinutes)
     path.copy(end = connPath)
   }(breakOut)
