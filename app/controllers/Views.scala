@@ -28,10 +28,11 @@ object Views extends Controller {
       val ts = pattern.trains()
       val stations = line.stations()
       val tt = TimeTable.findAllBy(sqls.in(TimeTable.tt.trainId, ts.map(_.id)))
-      val fastest: Map[Long, Int] = FastestPath(line, pattern, stations, ts, tt).calc.map { path =>
+      val fastestPath = FastestPath(line, pattern, stations, ts, tt)
+      val fastest: Map[Long, Int] = fastestPath.calc.map { path =>
         path.end.stationId -> path.period
       }(breakOut)
-      Ok(views.html.trains(pattern, line, stations, ts, tt, fastest))
+      Ok(views.html.trains(pattern, line, stations, ts, tt, fastest, fastestPath.averageCalc))
     }
     result.getOrElse(NotFound(s"Not found pattern"))
   }

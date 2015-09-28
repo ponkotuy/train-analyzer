@@ -4,6 +4,7 @@ import models._
 import scalikejdbc._
 
 import scala.collection.breakOut
+import scala.collection.mutable
 
 case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], trains: Seq[Train], table: Seq[TimeTable]) {
   val paths: Map[Long, List[TrainPath]] = table.groupBy(_.trainId).mapValues { case xs =>
@@ -20,30 +21,46 @@ case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], tra
 
   def calc: Seq[TrainPath] = {
     if(stations.isEmpty) return Nil
-    def f(sts: Seq[Station], paths: Seq[TrainPath]): Seq[TrainPath] = sts match {
-      case st +: rest =>
-        val grouped = paths.groupBy(_.end.stationId == st.id)
-        val passed = grouped.getOrElse(false, Nil)
-        val stop = grouped.getOrElse(true, Nil)
-        val newPaths = passed ++ stop.flatMap(nextPaths)
-        if(stop.nonEmpty) stop.minBy(_.period) +: f(rest, newPaths) else f(rest, newPaths)
-      case _ => Nil
-    }
-
     val initPaths = paths.flatMap { case (_, xs) =>
       xs.filter(_.start.stationId == stations.head.id)
     }(breakOut)
-    f(stations.tail, initPaths)
+    lookup(stations.tail, initPaths)
+  }
+
+  /** 待ち時間も含めた平均所要時間
+    *
+    * @return StationId -> Minutes
+    */
+  def averageCalc: scala.collection.immutable.Map[Long, Double] = {
+    if(stations.isEmpty) return Map.empty
+    val sums = mutable.Map[Long, Int]().withDefaultValue(0)
+    val start = stations.head
+    (0 until line.timeTablePeriod).foreach { minutes =>
+      val init = TimeTable(0L, 0L, start.id, minutes, true)
+      val result = lookup(stations.tail, nextPaths(init).map(_.copy(start = init)))
+      result.foreach { path =>
+        sums(path.end.stationId) += path.period
+      }
+    }
+    sums.mapValues(_ / line.timeTablePeriod.toDouble).toMap
+  }
+
+  private def lookup(sts: Seq[Station], paths: Seq[TrainPath]): Seq[TrainPath] = sts match {
+    case st +: rest =>
+      val grouped = paths.groupBy(_.end.stationId == st.id)
+      val passed = grouped.getOrElse(false, Nil)
+      val stop = grouped.getOrElse(true, Nil)
+      val newPaths = passed ++ stop.flatMap(nextPaths)
+      if(stop.nonEmpty) stop.minBy(_.period) +: lookup(rest, newPaths) else lookup(rest, newPaths)
+    case _ => Nil
   }
 
   def nextPaths(now: TimeTable): Seq[TrainPath] = paths.flatMap { case (tId, xs) =>
     xs.find(_.start.stationId == now.stationId)
   }.map { path =>
-    def f(conn: TimeTable): TimeTable = {
-      val connMinutes = ((now.minutes - conn.minutes) / line.timeTablePeriod.toDouble).ceil.toInt * line.timeTablePeriod
-      conn.next(connMinutes)
-    }
-    path.copy(end = f(path.end))
+    val connMinutes = ((now.minutes - path.start.minutes) / line.timeTablePeriod.toDouble).ceil.toInt * line.timeTablePeriod
+    val connPath = path.end.next(connMinutes)
+    path.copy(end = connPath)
   }(breakOut)
 
   def nextPaths(path: TrainPath): Seq[TrainPath] = nextPaths(path.end).map(path.join)

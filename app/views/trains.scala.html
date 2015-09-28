@@ -1,4 +1,12 @@
-@(pattern: Pattern, line: Line, stations: Seq[Station], trains: Seq[Train], timeTable: Seq[TimeTable], fastest: Map[Long, Int])
+@(
+    pattern: Pattern,
+    line: Line,
+    stations: Seq[Station],
+    trains: Seq[Train],
+    timeTable: Seq[TimeTable],
+    fastest: Map[Long, Int],
+    average: Map[Long, Double]
+)
 
 @main {
   <title>@{line.name} @{pattern.name}</title>
@@ -101,6 +109,7 @@
             <th>ID</th>
             <th>Name</th>
             <th>Time</th>
+            <th>Average</th>
             @trains.map { train =>
               <th>@train.trainClass @train.name</th>
             }
@@ -112,6 +121,7 @@
             <td>@st.id</td>
             <td>@st.name</td>
             <td>@fastest.lift(st.id).map(_ + "分").getOrElse("-")</td>
+            <td>@average.lift(st.id).map { min => @{f"$min%.1f分"} }.getOrElse("-")</td>
             @trains.map { train =>
               <td>
                 @if(timeTable.exists { tt => tt.stationId == st.id && tt.trainId == train.id}){○} else {｜}
