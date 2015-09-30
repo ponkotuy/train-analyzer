@@ -1,0 +1,12 @@
+
+play.crypto.secret="ponkotuponkotut/FnZWHiaaaaa"
+
+play.i18n.langs = ["en"]
+
+db.default.driver="org.mariadb.jdbc.Driver"
+db.default.url="jdbc:mysql://localhost:3306/tanalyzer"
+db.default.username=
+db.default.pasword=
+
+play.modules.disabled += "play.api.db.DBModule"
+play.modules.enabled += "scalikejdbc.PlayModule"
