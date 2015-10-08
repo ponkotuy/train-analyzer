@@ -4,6 +4,28 @@
   <title>Create lines</title>
   <script src="/assets/javascript/createLine.js"></script>
 } {
+  <h1>Lines</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @lines.map { line =>
+        <tr>
+          <td>@line.id</td>
+          <td>@line.name</td>
+          <td>
+            <a href="@routes.Views.patterns(line.id)">Patterns</a>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
   <h1>Create line</h1>
   <form class="form-horizontal">
     <div class="form-group">
@@ -26,26 +48,4 @@
       </div>
     </div>
   </form>
-
-  <h1>Lines</h1>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @lines.map { line =>
-        <tr>
-          <td>@line.id</td>
-          <td>@line.name</td>
-          <td>
-            <a href="@routes.Views.patterns(line.id)">Patterns</a>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
 }

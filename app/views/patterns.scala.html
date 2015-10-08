@@ -5,31 +5,8 @@
   <script src="/assets/javascript/patterns.js"></script>
 } {
   <dl class="dl-horizontal">
-    <dt>Line</dt><dd>@line.name</dd>
+    <dt><a href="@routes.Views.index()">Line</a></dt><dd>@line.name</dd>
   </dl>
-
-  <h1>Create</h1>
-  <form class="form-horizontal">
-    <div class="form-group">
-      <label for="patternName" class="col-sm-2 control-label">Pattern name</label>
-      <div class="col-sm-10">
-        <input type="text" class="form-control" id="patternName">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="timeTablePeriod" class="col-sm-2 control-label">Entire period(min)</label>
-      <div class="col-sm-10">
-        <input type="number" class="form-control" id="timeTablePeriod">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
-        <button type="button" class="btn btn-primary" id="postPattern" data-line-id="@line.id">Create</button>
-      </div>
-    </div>
-  </form>
 
   <h1>List</h1>
   <table class="table table-striped">
@@ -54,4 +31,27 @@
       }
     </tbody>
   </table>
+
+  <h1>Create Pattern</h1>
+  <form class="form-horizontal">
+    <div class="form-group">
+      <label for="patternName" class="col-sm-2 control-label">Pattern name</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="patternName">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="timeTablePeriod" class="col-sm-2 control-label">Entire period(min)</label>
+      <div class="col-sm-10">
+        <input type="number" class="form-control" id="timeTablePeriod">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="button" class="btn btn-primary" id="postPattern" data-line-id="@line.id">Create</button>
+      </div>
+    </div>
+  </form>
 }

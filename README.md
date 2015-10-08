@@ -3,6 +3,7 @@
 ### Required
 - MariaDB
 - OpenJDK8
+- sbt-extras
 
 ### First run
 ```sql

@@ -13,65 +13,25 @@
   <script src="/assets/javascript/trains.js"></script>
 } {
   <dl class="dl-horizontal">
-    <dt>Line</dt><dd>@line.name</dd>
-    <dt>Pattern</dt><dd>@pattern.name</dd>
+    <dt><a href="@routes.Views.index()">Line</a></dt><dd>@line.name</dd>
+    <dt><a href="@routes.Views.patterns(pattern.id)">Pattern</a></dt><dd>@pattern.name</dd>
     <dt>Entire Period</dt><dd>@pattern.timeTablePeriod 分</dd>
   </dl>
 
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active">
-      <a href="#create" aria-controls="create" role="tab" data-toggle="tab">Create</a>
-    </li>
-    <li role="presentation">
       <a href="#trains" aria-controls="trains" role="tab" data-toggle="tab">Trains</a>
     </li>
     <li role="presentation">
       <a href="#stops" aria-controls="stops" role="tab" data-toggle="tab">Stops</a>
     </li>
+    <li role="presentation">
+      <a href="#create" aria-controls="create" role="tab" data-toggle="tab">Create</a>
+    </li>
   </ul>
 
   <div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="create">
-      <h1>Create</h1>
-      <form class="form-horizontal">
-        <input type="hidden" id="patternId" value="@pattern.id">
-        <div class="form-group">
-          <label for="trainClass" class="col-sm-2 control-label">Train class</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" id="trainClass">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="trainName" class="col-sm-2 control-label">Train name</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" id="trainName">
-          </div>
-        </div>
-
-        <h3>Time table</h3>
-        @stations.map { station =>
-          <div class="form-group">
-            <label for="station_@{station.id}_arrive" class="col-sm-4 control-label">@station.name 着</label>
-            <div class="col-sm-2">
-              <input type="number" class="form-control arrive-time" id="station_@{station.id}_arrive" data-station-id="@station.id" data-station-no="@station.no">
-            </div>
-            <label for="station_@{station.id}_depart" class="col-sm-1 control-label">発</label>
-            <div class="col-sm-2">
-              <input type="number" class="form-control depart-time" id="station_@{station.id}_depart" data-station-id="@station.id" data-station-no="@station.no">
-            </div>
-          </div>
-        }
-
-        <div class="form-group">
-          <div class="col-sm-offset-2 col-sm-10">
-            <button type="button" class="btn btn-primary" id="createTrain" data-pattern-id="@pattern.id">Create</button>
-          </div>
-        </div>
-      </form>
-    </div>
-
-    <div role="tabpanel" class="tab-pane" id="trains">
+    <div role="tabpanel" class="tab-pane active" id="trains">
       <h1>Trains</h1>
       <table class="table table-striped">
         <thead>
@@ -131,6 +91,45 @@
         }
         </tbody>
       </table>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="create">
+      <h1>Create</h1>
+      <form class="form-horizontal">
+        <input type="hidden" id="patternId" value="@pattern.id">
+        <div class="form-group">
+          <label for="trainClass" class="col-sm-2 control-label">Train class</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="trainClass">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="trainName" class="col-sm-2 control-label">Train name</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="trainName">
+          </div>
+        </div>
+
+        <h3>Time table</h3>
+        @stations.map { station =>
+          <div class="form-group">
+            <label for="station_@{station.id}_arrive" class="col-sm-4 control-label">@station.name 着</label>
+            <div class="col-sm-2">
+              <input type="number" class="form-control arrive-time" id="station_@{station.id}_arrive" data-station-id="@station.id" data-station-no="@station.no">
+            </div>
+            <label for="station_@{station.id}_depart" class="col-sm-1 control-label">発</label>
+            <div class="col-sm-2">
+              <input type="number" class="form-control depart-time" id="station_@{station.id}_depart" data-station-id="@station.id" data-station-no="@station.no">
+            </div>
+          </div>
+        }
+
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-primary" id="createTrain" data-pattern-id="@pattern.id">Create</button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 }
