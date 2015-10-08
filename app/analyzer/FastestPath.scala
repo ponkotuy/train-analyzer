@@ -51,9 +51,12 @@ case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], tra
       val grouped = paths.groupBy(_.end.stationId == st.id)
       val passed = grouped.getOrElse(false, Nil)
       val stop = grouped.getOrElse(true, Nil)
-      val minStop = stop.minBy(_.period)
-      val newPaths = passed ++ stop.flatMap(nextPaths).filter(_.period <= minStop.period + entirePeriod)
-      if(stop.nonEmpty) minStop +: lookup(rest, newPaths) else lookup(rest, newPaths)
+      if(stop.isEmpty) Nil
+      else {
+        val minStop = stop.minBy(_.period)
+        val newPaths = passed ++ stop.flatMap(nextPaths).filter(_.period <= minStop.period + entirePeriod)
+        if(stop.nonEmpty) minStop +: lookup(rest, newPaths) else lookup(rest, newPaths)
+      }
     case _ => Nil
   }
 
