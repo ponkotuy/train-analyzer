@@ -21,7 +21,7 @@ case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], tra
   }
 
   def calc: Seq[TrainPath] = {
-    if(stations.isEmpty) return Nil
+    if(stations.isEmpty || trains.isEmpty) return Nil
     val initPaths = paths.flatMap { case (_, xs) =>
       xs.filter(_.start.stationId == stations.head.id)
     }(breakOut)
@@ -33,7 +33,7 @@ case class FastestPath(line: Line, pattern: Pattern, stations: Seq[Station], tra
     * @return StationId -> Minutes
     */
   def averageCalc: scala.collection.immutable.Map[Long, Double] = {
-    if(stations.isEmpty) return Map.empty
+    if(stations.isEmpty || trains.isEmpty) return Map.empty
     val sums = mutable.Map[Long, Int]().withDefaultValue(0)
     val start = stations.head
     (0 until entirePeriod).foreach { minutes =>
